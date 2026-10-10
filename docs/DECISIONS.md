@@ -28,6 +28,31 @@ to be proposed again.
 
 ## 2026-10-10
 
+- **Baffa delegated all build decisions: "stop asking me questions, do the
+  right thing… if you need something go online and search".**
+  *Why:* Baffa is busy with other work.
+  *Applies to:* all. Decide, record the decision here with the reasoning,
+  and research online instead of asking. Commits on feature branches are
+  allowed without asking. Never push, never touch `main`/`dev`. Spending
+  money or creating cloud accounts still needs Baffa.
+
+- **Wire protocol is OpenAI-compatible, plus a WebSocket for live mic**
+  (`docs/API.md`). Made under the delegation above.
+  *Why:* any official NCAIR endpoint later becomes a config change, standard
+  tools work, and two community servers already use this shape.
+  *Applies to:* backend, android, flutter.
+
+- **Namespace `io.github.baffaabba` (Maven group and Kotlin package
+  `io.github.baffaabba.natlas`); Flutter package `natlas_sdk`.**
+  *Why:* Maven Central verifies `io.github.<user>` against the GitHub account
+  (Baffaabba), so we own it without buying a domain.
+  *Applies to:* android, flutter.
+
+- **Toolchain is portable under `E:\dev-tools`** (JDK 17, Android SDK,
+  Flutter 3.47.7). Load it with `source /e/dev-tools/env.sh` (Git Bash) or
+  `. E:\dev-tools\env.ps1` (PowerShell). Nothing was installed system-wide.
+  *Applies to:* android, flutter, qa.
+
 - **This project stands alone; drop all references to other projects.**
   *Why:* Baffa: "forget gyara". This replaces the NAIC eligibility question
   in the "Target: NAIC 2026" entry below.
