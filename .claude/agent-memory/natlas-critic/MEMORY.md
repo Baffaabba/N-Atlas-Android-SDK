@@ -1,0 +1,1 @@
+- [Hosting facts](project_hosting_facts.md) — HF Docker Spaces need PRO; Modal $30 credits recommended 2026-10-11; Oracle card/capacity; GGUF provenance
