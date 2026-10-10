@@ -1,0 +1,47 @@
+# Secrets
+.env
+.env.*
+local.properties
+*.jks
+*.keystore
+key.properties
+hf_token*
+
+# Audio and model weights
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.flac
+*.gguf
+*.safetensors
+*.bin
+models/
+
+# Android / Gradle
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.iml
+.idea/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock.bak
+.pub-cache/
+
+# Python (server)
+.venv/
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
