@@ -1,0 +1,2 @@
+- [NAIC submission facts](project_naic_submission.md) — portal URL, team size 2-5, 9 PM submit buffer, Baffa pushes repo
+- [PM working style](feedback_working_style.md) — decide and record, no questions, no git, don't edit builder dirs

@@ -42,6 +42,15 @@ and the `NCAIR1/*-ASR` models. No other LLM, not even as a fallback.
 
 Materials in English.
 
+**Re-check 2026-10-10 (natlas-pm):** deadline, PS01 and the seven components
+are unchanged. New facts: portal for our track is
+https://ondi.innox.africa/apply/naic/naic-innovation-enterprise (form fields
+not published; the portal did not resolve from our machine). Teams are 2–5
+(the FAQ says 1–6). Component 7 for Track B is "CAC certificate or ID"
+(third parties say "and valid ID"; have both). Team profile = names,
+affiliations, roles. All members Nigerian citizens or a registered Nigerian
+entity. Full notes: `docs/STATUS.md` section 4.
+
 ## The six evaluation criteria (no weights published)
 
 Evaluation "focuses heavily on the **quality of the working build** and the

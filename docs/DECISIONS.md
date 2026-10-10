@@ -28,6 +28,30 @@ to be proposed again.
 
 ## 2026-10-10
 
+- **Judges' server for 15–17 Oct: the same Colab notebook behind a fixed
+  tunnel address (ngrok's one free static domain), restarted on a schedule
+  by Baffa; the README also offers a "run your own server" notebook.**
+  Made by natlas-pm under the delegation. Replaces the open hosting question.
+  *Why:* Colab URLs change each session; a fixed tunnel address fixes that
+  without spending money. Paid serverless GPU (Modal, HF Endpoints) needs
+  Baffa's approval to spend, so it is the upgrade, not the plan. Risks: Colab
+  disconnects, and ngrok's free tier has a 1 GB/month bandwidth cap.
+  *Applies to:* backend (support a fixed tunnel domain), Baffa (Colab and
+  ngrok accounts, restarts).
+
+- **Submit on the Innovation & Enterprise track by 9:00 PM WAT Mon 12 Oct,
+  three hours before the portal closes.** Made by natlas-pm under the
+  delegation.
+  *Why:* the human-only list includes a CAC certificate, which is that
+  track's requirement; the buffer covers portal or upload trouble.
+  *Applies to:* pm, Baffa.
+
+- **The SDK's own code is Apache-2.0; the models keep their own licence.**
+  Made by natlas-pm under the delegation.
+  *Why:* standard for Android and Flutter libraries, with a patent grant; the
+  repo holds no model weights, so the N-ATLAS licence does not bind our code.
+  *Applies to:* android, flutter, backend (add `LICENSE` before release).
+
 - **Baffa delegated all build decisions: "stop asking me questions, do the
   right thing… if you need something go online and search".**
   *Why:* Baffa is busy with other work.
