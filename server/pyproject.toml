@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "natlas-server"
+version = "0.1.0"
+description = "Reference test server for the N-ATLAS SDK: OpenAI-compatible chat and transcription plus live-microphone WebSocket, serving only NCAIR1 N-ATLAS models."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "python-multipart>=0.0.9",
+    "numpy>=1.24",
+    "soundfile>=0.12",
+]
+
+[project.optional-dependencies]
+# Real models on CPU (ASR only is realistic on CPU) or GPU.
+models = [
+    "torch>=2.6",
+    "transformers>=4.56",
+    "accelerate>=0.33",
+    "huggingface_hub>=0.24",
+    "scipy>=1.10",
+]
+# N-ATLaS in 4-bit needs bitsandbytes and a CUDA GPU.
+gpu = [
+    "natlas-server[models]",
+    "bitsandbytes>=0.43",
+]
+test = [
+    "pytest>=8",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+natlas-server = "natlas_server.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["natlas_server*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

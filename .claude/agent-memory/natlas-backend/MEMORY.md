@@ -1,0 +1,3 @@
+- [HF access and model quirks](project_hf_access_and_models.md) — token lacks Igbo/English ASR access; ASR repo quirks; small public Hausa clip
+- [Tunnels and Colab policy](project_tunnels_and_colab_policy.md) — cloudflared needs --protocol http2 for WS; Colab FAQ bans web services
+- [Dev machine limits](project_dev_machine.md) — 2-core laptop, CPU shared; never quote its latency
