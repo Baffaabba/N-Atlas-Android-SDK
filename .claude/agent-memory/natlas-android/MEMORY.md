@@ -1,0 +1,1 @@
+- [Toolchain and build quirks](project_toolchain.md) — E:\dev-tools JDK17/SDK paths, Gradle wrapper source, heredoc backslash bug

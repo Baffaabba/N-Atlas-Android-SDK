@@ -26,7 +26,103 @@ to be proposed again.
 
 ---
 
+## 2026-10-11
+
+- **Flutter bridge: Pigeon 29 `@HostApi` for calls plus one `@EventChannelApi`
+  (`sessionEvents`, a sealed `SessionEventMsg`) for every stream, keyed by
+  session id through Pigeon's `instanceName`.** Made by natlas-flutter under
+  the delegation. *Why:* Pigeon 29 supports event channels and sealed event
+  classes for Kotlin and Dart, so no hand-written channel code. A `start*`
+  call registers the session's channel and returns its id; Kotlin collects
+  the flow only while Dart listens, and Dart cancelling the subscription
+  (`onCancel`) cancels the coroutine. *Applies to:* flutter, android (the
+  plugin's Kotlin only converts types; no logic).
+
+- **Dart exception subclasses are named `NAtlas` + the Kotlin name
+  (`NAtlasException.Timeout` → `NAtlasTimeout`, `.Unauthorized` →
+  `NAtlasUnauthorized`).** Made by natlas-flutter under the delegation.
+  *Why:* plain Kotlin names clashed: `Timeout` is also exported by
+  `flutter_test` (it broke `flutter analyze` in our own tests), and
+  `TimeoutException` is in `dart:async`. Same rule API.md already uses for
+  events (`LiveEvent.Ready` → `LiveReady`). Channel error codes stay the
+  Kotlin simple names. *Applies to:* flutter; API.md Part 3.
+
+- **The Flutter example builds natlas-core from source with a Gradle
+  composite build (`includeBuild("../../../../android")` + dependency
+  substitution for `io.github.baffaabba:natlas-core`), and pins AGP 8.13.2,
+  Kotlin 2.2.21, Gradle 8.14.3 like `android/`.** Made by natlas-flutter
+  under the delegation. *Why:* no publish step, and one AGP version in the
+  composite build. Flutter 3.47.7's template defaults to AGP 9.1 / Kotlin
+  2.4 / Gradle 9.3.1, but its Gradle plugin accepts AGP ≥ 8.11.1 and Kotlin
+  ≥ 2.2.20 (warnings only). The plugin's Gradle file also lists
+  `mavenLocal()` for apps outside this repo (`publishToMavenLocal`).
+  *Applies to:* flutter, android (keep the two version lists in step), qa.
+
+- **`natlas_sdk` is `publish_to: none` until natlas-core is on Maven
+  Central; the example bundles Noto Sans (OFL) instead of downloading
+  fonts.** Made by natlas-flutter under the delegation. *Why:* a pub.dev
+  package that can't resolve its Android dependency would fail on install;
+  bundled fonts render ɓ ɗ ƙ, ẹ ọ ṣ, ị ụ ṅ offline (coverage checked in
+  the font's cmap). *Applies to:* flutter, pm (release steps).
+
+- **Test server stack: FastAPI + uvicorn with Hugging Face transformers
+  (N-ATLaS in 4-bit NF4 via bitsandbytes, the four ASR models through the
+  transformers pipeline), behind a small backend interface with a `fake`
+  backend for laptops and tests.** Made by natlas-backend under the
+  delegation. *Why:* it runs on a free Colab T4 with no conversion step
+  (vLLM and faster-whisper would need AWQ/CTranslate2 conversions of the
+  NCAIR weights), matches the model cards' own code, and the fake backend
+  lets android/flutter work without a GPU. *Applies to:* backend; android
+  and flutter can run `python -m natlas_server` locally (`server/README.md`).
+
+- **Wire-protocol details fixed in `docs/API.md` Part 1:** WebSocket
+  problems arrive as an `error` frame after the upgrade, then close code
+  `4000 + HTTP status`; `/health` adds `users` (active count and cap) and a
+  per-model `state`; a supported language that the server does not enable is
+  a 400; errors carry OpenAI's `param`. Made by natlas-backend under the
+  delegation. *Why:* found while implementing; the close codes let clients
+  react even if they miss the frame, and the cap stays visible before it is
+  hit. *Applies to:* android, flutter (error mapping for live sessions).
+
+- **ASR runs without forcing Whisper's language token by default
+  (`NATLAS_ASR_FORCE_LANGUAGE=0`).** Made by natlas-backend under the
+  delegation. *Why:* the NCAIR model cards call the pipeline with no
+  language, their `generation_config` leaves the language slot open, and
+  Igbo has no Whisper token at all. Switchable if tests show forcing helps.
+  *Applies to:* backend.
+
+- **The Colab notebook runs cloudflared with `--protocol http2`.** Made by
+  natlas-backend under the delegation. *Why:* in a test on 2026-10-10 the
+  default QUIC transport delivered no client-to-server WebSocket frames (live
+  audio never reached the server); with HTTP/2 live audio and SSE both
+  worked. *Applies to:* backend, anyone running the notebook.
+
 ## 2026-10-10
+
+- **Android build stack: AGP 8.13.2, Gradle 8.14.3, Kotlin 2.2.21,
+  compileSdk/targetSdk 36, minSdk 24; natlas-core compiles with Kotlin
+  language/API version 2.1.** Made by natlas-android under the delegation.
+  *Why:* AGP 9.4 is the newest, but its built-in Kotlin changes how plugins
+  are applied and Flutter plugin builds may not follow yet; two days before
+  the deadline the mature AGP 8 line is the safer bet, and it needs only the
+  installed platform 36. Language version 2.1 keeps the published metadata
+  readable by apps and the Flutter plugin on Kotlin 2.1+.
+  *Applies to:* android, flutter (consume via `mavenLocal()` or composite
+  build; either works).
+
+- **`NAtlasClient(config)` needs no `Context`: natlas-core captures the app
+  context with a tiny internal `ContentProvider` to keep the per-install
+  `X-NAtlas-User` UUID in SharedPreferences.** Made by natlas-android under
+  the delegation. *Why:* keeps the API in docs/API.md unchanged and the
+  README snippet short; without it the user cap can't be counted per install.
+  *Applies to:* android, flutter (nothing to do; the provider merges in).
+
+- **Wrapper SDKs set their User-Agent through
+  `@NAtlasPlatformApi NAtlasClient(config, userAgent)`.** Made by
+  natlas-android under the delegation. *Why:* the wire protocol asks the
+  Flutter plugin to send `natlas-flutter/<ver>`, but all calls go through
+  Kotlin. An opt-in constructor keeps it off the app-facing surface.
+  *Applies to:* flutter.
 
 - **Judges' server for 15–17 Oct: the same Colab notebook behind a fixed
   tunnel address (ngrok's one free static domain), restarted on a schedule

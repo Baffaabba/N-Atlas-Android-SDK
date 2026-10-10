@@ -20,6 +20,7 @@ models/
 
 # Android / Gradle
 .gradle/
+.kotlin/
 build/
 captures/
 .externalNativeBuild/
@@ -41,6 +42,11 @@ pubspec.lock.bak
 .venv/
 __pycache__/
 *.pyc
+*.egg-info/
+.pytest_cache/
+# server user-counter database (hashed end-user ids)
+*.sqlite3
+natlas_server.log
 
 # OS
 .DS_Store

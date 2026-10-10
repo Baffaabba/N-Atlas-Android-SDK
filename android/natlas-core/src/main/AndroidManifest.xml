@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Only used by asr.live() and voice.converse(). The SDK never asks for it;
+         the app requests it at the moment it needs the microphone. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application>
+        <!-- Captures the application context so the SDK can keep a random,
+             per-install user id for the licence's active-user count. -->
+        <provider
+            android:name="io.github.baffaabba.natlas.internal.NAtlasInitProvider"
+            android:authorities="${applicationId}.natlas-init"
+            android:exported="false" />
+    </application>
+</manifest>
