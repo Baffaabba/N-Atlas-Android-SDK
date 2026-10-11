@@ -51,3 +51,6 @@ natlas_server.log
 # OS
 .DS_Store
 Thumbs.db
+
+# Gradio local state
+.gradio/

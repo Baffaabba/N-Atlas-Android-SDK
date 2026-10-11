@@ -30,6 +30,10 @@ gpu = [
     "natlas-server[models]",
     "bitsandbytes>=0.43",
 ]
+# Gradio playground + share link for Colab (natlas_server.gradio_app).
+ui = [
+    "gradio>=6.0,<7",
+]
 test = [
     "pytest>=8",
     "httpx>=0.27",

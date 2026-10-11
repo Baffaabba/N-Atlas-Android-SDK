@@ -28,6 +28,26 @@ to be proposed again.
 
 ## 2026-10-11
 
+- **The Colab notebook defaults to a Gradio share link (`MODE = "gradio"`):
+  a browser playground plus the SDK API, mounted at `/natlas`, on one
+  `*.gradio.live` URL. Cloudflared/ngrok stays available as `MODE = "tunnel"`.**
+  *Why:* Baffa asked for "colab to use gradio or streamlit" and said the
+  notebook must fully support Colab so other team members can test. Gradio
+  over Streamlit: Gradio gives a public share link from Colab with no
+  account, and its server is FastAPI, so the existing API mounts on the same
+  link. Streamlit would need a separate tunnel and can't host the API.
+  *Applies to:* backend, android/flutter (Colab `baseUrl` is
+  `https://<id>.gradio.live/natlas`), pm (tester guide). Open risk: SSE and
+  WebSocket through the Gradio share relay haven't been verified (frpc is
+  blocked on Baffa's laptop). The notebook's smoke cells check both.
+
+- **Team-member support in the notebook:** `GITHUB_TOKEN` secret for a
+  private repo, automatic zip-upload fallback, a GPU check, and a per-token
+  check of access to each gated NCAIR1 repo.
+  *Why:* same request from Baffa.
+  *Applies to:* backend.
+
+
 - **Flutter bridge: Pigeon 29 `@HostApi` for calls plus one `@EventChannelApi`
   (`sessionEvents`, a sealed `SessionEventMsg`) for every stream, keyed by
   session id through Pigeon's `instanceName`.** Made by natlas-flutter under

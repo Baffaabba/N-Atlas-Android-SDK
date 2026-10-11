@@ -22,7 +22,17 @@ md(r"""
 # N-ATLAS SDK test server on Google Colab
 
 Runs the N-ATLAS SDK server (`server/` in the repo) on a Colab **T4 GPU** and
-gives it a public HTTPS URL so the Android and Flutter SDKs can call it.
+gives it a public HTTPS link.
+
+**Default (`MODE = "gradio"`)** – one Gradio share link (`https://<id>.gradio.live`):
+
+- open the link in a browser for the **N-ATLAS playground** (chat, transcribe,
+  talk to N-ATLAS). Login: user `natlas`, password = the API key printed below;
+- the Android/Flutter SDK uses **`<link>/natlas`** as `baseUrl`, with the same
+  API key.
+
+No ngrok or Cloudflare account needed. `MODE = "tunnel"` runs the plain
+server behind cloudflared/ngrok instead (use it for a fixed ngrok domain).
 
 It serves only the N-ATLAS models: `NCAIR1/N-ATLaS` (4-bit NF4) for chat and
 `NCAIR1/Hausa-ASR`, `Igbo-ASR`, `Yoruba-ASR`, `NigerianAccentedEnglish` for
@@ -49,15 +59,21 @@ speech-to-text.
 | --- | --- | --- |
 | `HF_TOKEN` | yes | Hugging Face read token |
 | `NATLAS_API_KEYS` | no | Comma-separated API keys. Set it to keep the same key across sessions; otherwise a random key is made each run |
-| `NGROK_AUTHTOKEN` | no | Use ngrok instead of a Cloudflare quick tunnel |
-| `NGROK_DOMAIN` | no | Your free ngrok static domain (e.g. `name.ngrok-free.app`), so the URL never changes |
+| `NGROK_AUTHTOKEN` | no | `MODE="tunnel"` only: use ngrok instead of a Cloudflare quick tunnel |
+| `NGROK_DOMAIN` | no | `MODE="tunnel"` only: your free ngrok static domain, so the URL never changes |
+
+| `GITHUB_TOKEN` | no | Only if the repo is private: a GitHub token with read access |
+
+Each team member uses **their own** Hugging Face token, and must accept the
+five model terms once with their own account; step 5 checks this and tells you
+which pages to open.
 
 Then *Runtime → Run all*. First run downloads about 20 GB and takes roughly
 10–20 minutes (not measured on every run; see the timing printed below).
 
-**Limits.** A Cloudflare quick tunnel gives a new URL every session and,
-per Cloudflare's docs, does not support Server-Sent Events, so chat
-streaming may arrive in one piece. ngrok supports SSE. Colab ends idle
+**Limits.** A Gradio share link changes every session and expires after
+about a week; it is relayed through Gradio's share servers. A Cloudflare
+quick tunnel also changes every session. Colab ends idle
 sessions and caps free sessions at 12 hours. Colab's FAQ also lists "web
 service offerings not related to interactive compute" among disallowed
 activities, so treat this as a short-lived test server, not hosting.
@@ -71,6 +87,9 @@ REPO_BRANCH = ""          #@param {type:"string"}
 # Which ASR languages to load: any of ha, ig, yo, en
 ASR_LANGUAGES = "ha,ig,yo,en"   #@param {type:"string"}
 LOAD_LLM = True           #@param {type:"boolean"}
+# "gradio": playground + API on one gradio.live link (default). "tunnel": plain server + cloudflared/ngrok.
+MODE = "gradio"           #@param ["gradio", "tunnel"]
+GRADIO_PORT = 7860
 # "auto" = ngrok if NGROK_AUTHTOKEN is set, else Cloudflare quick tunnel
 TUNNEL = "auto"           #@param ["auto", "cloudflared", "ngrok"]
 PORT = 8000
@@ -80,39 +99,61 @@ WORKDIR = "/content"
 md("## 2. Check the GPU")
 code(r"""
 import subprocess
-print(subprocess.run(["nvidia-smi", "--query-gpu=name,memory.total,memory.used", "--format=csv"],
-                     capture_output=True, text=True).stdout or "No GPU. Runtime -> Change runtime type -> T4 GPU.")
+try:
+    out = subprocess.run(["nvidia-smi", "--query-gpu=name,memory.total,memory.used", "--format=csv"],
+                         capture_output=True, text=True).stdout
+except FileNotFoundError:
+    out = ""
+print(out or "No GPU found.")
+if LOAD_LLM:
+    assert out, "N-ATLaS needs a GPU. Runtime -> Change runtime type -> T4 GPU, then Runtime -> Run all."
 """)
 
 md(r"""
 ## 3. Get the server code
 
-Clones `REPO_URL`. If the repo is private or you have no network access to
-it, skip this cell and run the **upload a zip** cell below instead.
+Clones `REPO_URL`. For a **private** repo, add a `GITHUB_TOKEN` secret (a
+GitHub token with read access to the repo). If cloning fails for any reason,
+the cell asks you to **upload a zip** of the repo (or of its `server/`
+folder) instead, so a team member without GitHub access can still run it.
 """)
 code(r"""
-import os, subprocess
+import glob, os, subprocess, zipfile
+from google.colab import userdata
+
+def secret(name):
+    try:
+        v = userdata.get(name)
+        return v.strip() if v else None
+    except Exception:   # not defined, or notebook access not granted
+        return None
+
+def find_server_dir(root):
+    hits = [os.path.dirname(p) for p in glob.glob(os.path.join(root, "**", "pyproject.toml"), recursive=True)
+            if os.path.isdir(os.path.join(os.path.dirname(p), "natlas_server"))]
+    return hits[0] if hits else None
+
 REPO_DIR = os.path.join(WORKDIR, "N-Atlas-SDK")
+SERVER_DIR = find_server_dir(REPO_DIR) if os.path.isdir(REPO_DIR) else None
 if os.path.isdir(os.path.join(REPO_DIR, ".git")):
     print(subprocess.run(["git", "-C", REPO_DIR, "pull", "--ff-only"], capture_output=True, text=True).stdout)
-else:
-    cmd = ["git", "clone", "--depth", "1"] + (["-b", REPO_BRANCH] if REPO_BRANCH else []) + [REPO_URL, REPO_DIR]
+    SERVER_DIR = find_server_dir(REPO_DIR)
+elif SERVER_DIR is None:
+    url = REPO_URL
+    gh = secret("GITHUB_TOKEN")
+    if gh and url.startswith("https://github.com/"):
+        url = url.replace("https://", f"https://x-access-token:{gh}@", 1)
+    cmd = ["git", "clone", "--depth", "1"] + (["-b", REPO_BRANCH] if REPO_BRANCH else []) + [url, REPO_DIR]
     r = subprocess.run(cmd, capture_output=True, text=True)
-    print(r.stdout, r.stderr)
-SERVER_DIR = os.path.join(REPO_DIR, "server")
-print("server dir present:", os.path.isfile(os.path.join(SERVER_DIR, "pyproject.toml")))
-""")
+    err = r.stderr.strip()[-200:]
+    if gh:
+        err = err.replace(gh, "***")
+    print("clone:", "ok" if r.returncode == 0 else "failed (" + err + ")")
+    if r.returncode == 0:
+        SERVER_DIR = find_server_dir(REPO_DIR)
 
-md(r"""
-### 3b. Fallback: upload a zip
-
-Only if the clone failed. Zip the repo (or just its `server/` folder) on your
-computer and upload it here.
-""")
-code(r"""
-RUN_UPLOAD = False   #@param {type:"boolean"}
-if RUN_UPLOAD:
-    import glob, os, zipfile
+if SERVER_DIR is None:
+    print("Could not clone the repo. Upload a zip of the repo (or of its server/ folder).")
     from google.colab import files
     up = files.upload()
     name = next(iter(up))
@@ -120,17 +161,15 @@ if RUN_UPLOAD:
     with zipfile.ZipFile(name) as z:
         z.extractall(dest)
     os.remove(name)
-    found = [os.path.dirname(p) for p in glob.glob(os.path.join(dest, "**", "pyproject.toml"), recursive=True)
-             if os.path.isdir(os.path.join(os.path.dirname(p), "natlas_server"))]
-    assert found, "No server/pyproject.toml with natlas_server/ inside the zip"
-    SERVER_DIR = found[0]
-    print("SERVER_DIR =", SERVER_DIR)
+    SERVER_DIR = find_server_dir(dest)
+    assert SERVER_DIR, "No server/pyproject.toml with natlas_server/ inside the zip."
+print("SERVER_DIR =", SERVER_DIR)
 """)
 
 md("## 4. Install")
 code(r"""
 import subprocess, sys
-r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-e", f"{SERVER_DIR}[gpu]", "websockets"],
+r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-e", f"{SERVER_DIR}[gpu,ui]", "websockets"],
                    capture_output=True, text=True)
 print(r.stdout[-3000:], r.stderr[-3000:])
 assert r.returncode == 0, "pip install failed"
@@ -146,17 +185,29 @@ Reads `HF_TOKEN` (never printed) and the optional secrets. If
 """)
 code(r"""
 import os, secrets
-from google.colab import userdata
-
-def secret(name):
-    try:
-        v = userdata.get(name)
-        return v.strip() if v else None
-    except Exception:   # not defined, or notebook access not granted
-        return None
 
 HF_TOKEN = secret("HF_TOKEN")
 assert HF_TOKEN, "Add the HF_TOKEN secret (key icon on the left) and allow notebook access."
+
+# Check this token can download each gated N-ATLAS repo (each person must accept the terms once).
+from huggingface_hub import hf_hub_download
+_needed = (["NCAIR1/N-ATLaS"] if LOAD_LLM else []) + [
+    {"ha": "NCAIR1/Hausa-ASR", "ig": "NCAIR1/Igbo-ASR", "yo": "NCAIR1/Yoruba-ASR",
+     "en": "NCAIR1/NigerianAccentedEnglish"}[c.strip()] for c in ASR_LANGUAGES.split(",") if c.strip()]
+_blocked = []
+for repo in _needed:
+    try:
+        hf_hub_download(repo, "config.json", token=HF_TOKEN)
+        print("access ok :", repo)
+    except Exception as e:
+        _blocked.append(repo)
+        print("NO ACCESS :", repo, "->", type(e).__name__)
+if _blocked:
+    print()
+    print("Open these pages while signed in to Hugging Face, accept the terms, then re-run this cell:")
+    for repo in _blocked:
+        print("  https://huggingface.co/" + repo)
+    print("(Or drop those languages from ASR_LANGUAGES in step 1. Models without access fail in /health.)")
 API_KEYS = secret("NATLAS_API_KEYS")
 NGROK_AUTHTOKEN = secret("NGROK_AUTHTOKEN")
 NGROK_DOMAIN = secret("NGROK_DOMAIN")
@@ -196,7 +247,13 @@ These are arithmetic estimates; the cell after start-up prints the real
 CPU RAM (12.7 GB on free Colab) is enough because weights load shard by shard.
 """)
 
-md("## 7. Start the server (with automatic restart)")
+md(r"""
+## 7. Start the server
+
+`MODE="gradio"`: loads the models in this notebook and opens the Gradio share
+link (playground + API). `MODE="tunnel"`: starts the server as a separate
+process with automatic restart; the tunnel comes up in step 8.
+""")
 code(r"""
 import os, subprocess, sys, threading, time, json, urllib.request
 
@@ -219,20 +276,33 @@ def start_server():
     return subprocess.Popen([sys.executable, "-m", "natlas_server", "--host", "127.0.0.1", "--port", str(PORT)],
                             env=server_env, stdout=log, stderr=subprocess.STDOUT, cwd=WORKDIR)
 
+HEALTH_URL = (f"http://127.0.0.1:{GRADIO_PORT}/natlas/health" if MODE == "gradio"
+              else f"http://127.0.0.1:{PORT}/health")
+
 def health():
     try:
-        with urllib.request.urlopen(f"http://127.0.0.1:{PORT}/health", timeout=5) as r:
+        with urllib.request.urlopen(HEALTH_URL, timeout=5) as r:
             return json.load(r)
     except Exception:
         return None
 
-try:
-    server_proc
-except NameError:
+restarts = 0
+if MODE == "gradio":
+    os.environ.update(server_env)   # Settings.from_env() reads these
+    try:
+        URLS
+    except NameError:
+        from natlas_server.gradio_app import launch
+        URLS = launch(share=True, port=GRADIO_PORT)
+    BASE_URL = URLS["api"]
     server_proc = None
-if server_proc is None or server_proc.poll() is not None:
-    server_proc = start_server()
-    restarts = 0
+else:
+    try:
+        server_proc
+    except NameError:
+        server_proc = None
+    if server_proc is None or server_proc.poll() is not None:
+        server_proc = start_server()
 
 def watchdog():
     # Restart policy: if the server process exits, start it again (with back-off).
@@ -245,7 +315,7 @@ def watchdog():
             time.sleep(min(60, 5 * restarts))
             server_proc = start_server()
 
-if not any(t.name == "natlas-watchdog" for t in threading.enumerate()):
+if MODE == "tunnel" and not any(t.name == "natlas-watchdog" for t in threading.enumerate()):
     threading.Thread(target=watchdog, name="natlas-watchdog", daemon=True).start()
 
 t0 = time.time()
@@ -267,10 +337,20 @@ for m, v in (h or {}).get("models", {}).items():
         print("ERROR", m, "->", v["error"])
 print(subprocess.run(["nvidia-smi", "--query-gpu=memory.used,memory.total", "--format=csv"],
                      capture_output=True, text=True).stdout)
+if MODE == "gradio":
+    print("=" * 70)
+    print("PLAYGROUND:", URLS["ui"], " (login: natlas / the API key)")
+    print("SDK BASE URL:", BASE_URL)
+    print("API KEY  :", API_KEY)
+    print("=" * 70)
+    print("Android : NAtlasConfig(baseUrl = \"%s\", apiKey = ...)" % BASE_URL)
+    print("Flutter : --dart-define=NATLAS_BASE_URL=%s --dart-define=NATLAS_API_KEY=..." % BASE_URL)
 """)
 
 md(r"""
-## 8. Public URL (tunnel)
+## 8. Public URL (tunnel) – `MODE="tunnel"` only
+
+Skipped in Gradio mode (the share link from step 7 is the public URL).
 
 - **cloudflared** (default, no account): new `*.trycloudflare.com` URL each
   session. Cloudflare documents that quick tunnels do not support SSE. In our
@@ -312,18 +392,21 @@ def start_ngrok():
     tunnel = ngrok.connect(addr=str(PORT), proto="http", **kwargs)
     return tunnel, tunnel.public_url.replace("http://", "https://")
 
-if TUNNEL_KIND == "ngrok":
-    tunnel_handle, BASE_URL = start_ngrok()
+if MODE == "gradio":
+    print("Gradio mode: nothing to do here. SDK base URL:", BASE_URL)
 else:
-    tunnel_handle, BASE_URL = start_cloudflared()
+    if TUNNEL_KIND == "ngrok":
+        tunnel_handle, BASE_URL = start_ngrok()
+    else:
+        tunnel_handle, BASE_URL = start_cloudflared()
 
-print("=" * 70)
-print("BASE URL :", BASE_URL)
-print("API KEY  :", API_KEY)
-print("=" * 70)
-print("Android : NAtlasConfig(baseUrl = \"%s\", apiKey = ...)" % BASE_URL)
-print("Flutter : --dart-define=NATLAS_BASE_URL=%s --dart-define=NATLAS_API_KEY=..." % BASE_URL)
-print("Health  :", BASE_URL + "/health")
+    print("=" * 70)
+    print("BASE URL :", BASE_URL)
+    print("API KEY  :", API_KEY)
+    print("=" * 70)
+    print("Android : NAtlasConfig(baseUrl = \"%s\", apiKey = ...)" % BASE_URL)
+    print("Flutter : --dart-define=NATLAS_BASE_URL=%s --dart-define=NATLAS_API_KEY=..." % BASE_URL)
+    print("Health  :", BASE_URL + "/health")
 """)
 
 md("## 9. Smoke test")
@@ -446,9 +529,11 @@ no audio or text is logged). Keep this tab open; Colab ends idle sessions.
 code(r"""
 import json, subprocess
 h = health()
-print("BASE URL:", BASE_URL, "| tunnel:", TUNNEL_KIND, "| server restarts:", restarts)
+print("BASE URL:", BASE_URL, "| mode:", MODE, "| tunnel:", TUNNEL_KIND if MODE == "tunnel" else "gradio share",
+      "| server restarts:", restarts)
 print(json.dumps(h, indent=1) if h else "server not answering")
-print(subprocess.run(["tail", "-n", "20", LOG_PATH], capture_output=True, text=True).stdout)
+if MODE == "tunnel":
+    print(subprocess.run(["tail", "-n", "20", LOG_PATH], capture_output=True, text=True).stdout)
 """)
 
 md("## 11. Stop")
@@ -463,8 +548,12 @@ if STOP:
         tunnel_handle.terminate()
     except Exception:
         pass
-    server_proc.terminate()
-    print("stopped (the watchdog will restart the server unless you restart the runtime)")
+    if MODE == "gradio":
+        import gradio as gr; gr.close_all()
+        print("stopped the Gradio app")
+    else:
+        server_proc.terminate()
+        print("stopped (the watchdog will restart the server unless you restart the runtime)")
 """)
 
 nb = new_notebook(cells=cells, metadata={

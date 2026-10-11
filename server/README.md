@@ -87,28 +87,73 @@ cd server
 
 ## Run it on Google Colab (real models, T4 GPU)
 
-Open [`colab/natlas_server_colab.ipynb`](colab/natlas_server_colab.ipynb) in
-Colab, choose a T4 GPU runtime, add the secrets below, and *Run all*. The
-notebook clones this repo (or takes an uploaded zip), installs the server,
-loads N-ATLaS in 4-bit plus the four ASR models, starts the server with an
-automatic-restart watchdog, opens a tunnel, prints the **base URL and API
-key**, and runs smoke tests (health, chat, streaming, a Hausa transcription
-and a live WebSocket session).
+Any team member can run it. Open
+[`colab/natlas_server_colab.ipynb`](colab/natlas_server_colab.ipynb) in Colab,
+choose a T4 GPU runtime, add the secrets below, and *Run all*.
+
+**Until the GitHub repo is public**, add a `GITHUB_TOKEN` secret, or let the
+notebook ask for a zip. To make the zip, run
+`git archive --format=zip -o N-Atlas-SDK.zip HEAD` in the repo. If cloning
+fails, the notebook asks for the upload automatically.
+
+What the notebook does:
+
+1. Stops early if there is no GPU.
+2. Checks that *your* Hugging Face token can open each gated NCAIR1 repo, and
+   lists the pages to accept if not.
+3. Installs the server.
+4. Loads N-ATLaS in 4-bit and the four ASR models.
+5. Prints the links and the API key.
+6. Runs smoke tests: health, chat, streaming, a Hausa transcription and a
+   live WebSocket session.
+
+### Default: Gradio share link (`MODE = "gradio"`)
+
+One public link, `https://<id>.gradio.live`, with no tunnel account. The
+models load once, in the notebook, and serve both of these:
+
+| Who | Uses | Login |
+| --- | --- | --- |
+| People testing in a browser | `https://<id>.gradio.live`: the **N-ATLAS playground** (Chat, Transcribe with mic or upload, Talk to N-ATLAS) | user `natlas`, password = the API key |
+| Android / Flutter SDK, curl | `https://<id>.gradio.live/natlas` as `baseUrl` (so `/natlas/health`, `/natlas/v1/chat/completions`, …) | `Authorization: Bearer <API key>` |
+
+Code: `natlas_server/gradio_app.py`. `launch()` starts Gradio with
+`share=True` and mounts the full API app at `/natlas` on the same server.
+Run it locally with `pip install -e ".[ui]"`, then
+`python -c "from natlas_server.gradio_app import launch; print(launch(share=False)); input()"`
+(with `NATLAS_API_KEYS` set).
+
+Limits:
+
+- The link changes every session and expires after about a week.
+- Traffic goes through Gradio's share relay.
+- **Not yet tested through a real share link.** This laptop's security
+  policy blocks the `frpc` relay binary that Gradio uses for share links
+  ("Access is denied"). The local server, with the API mounted under
+  `/natlas`, passed health, auth, SSE streaming, transcription and the live
+  WebSocket (`tests/test_gradio_app.py` and a manual run). The notebook's
+  smoke-test cells check streaming and the live WebSocket through the share
+  link on Colab. If either fails there, use `MODE = "tunnel"`.
 
 Colab secrets (key icon on the left; switch on notebook access for each):
 
 | Secret | Required | Effect |
 | --- | --- | --- |
-| `HF_TOKEN` | yes | Downloads the gated NCAIR1 repos. Never printed or logged |
+| `HF_TOKEN` | yes | Each person's own token. Downloads the gated NCAIR1 repos. Never printed or logged |
 | `NATLAS_API_KEYS` | no | Fixed API key(s), comma-separated. Set this so the key stays the same across sessions. If unset, a random key is generated each run |
-| `NGROK_AUTHTOKEN` | no | Use ngrok instead of a Cloudflare quick tunnel |
-| `NGROK_DOMAIN` | no | Your free ngrok static domain, e.g. `your-name.ngrok-free.app`. The URL then never changes |
+| `GITHUB_TOKEN` | no | Clone the repo while it is private |
+| `NGROK_AUTHTOKEN` | no | `MODE="tunnel"`: use ngrok instead of a Cloudflare quick tunnel |
+| `NGROK_DOMAIN` | no | `MODE="tunnel"`: your free ngrok static domain, so the URL never changes |
 
-Your Hugging Face account must accept the terms of all five NCAIR1 repos.
-Any repo you have not accepted shows as `failed` in `/health`, and that
-language returns `503 backend_unavailable`. The rest keep working.
+Each person's Hugging Face account must accept the terms of all five NCAIR1
+repos once. Step 5 of the notebook checks this. A repo that hasn't been
+accepted shows as `failed` in `/health` and returns `503 backend_unavailable`
+for that language. The rest keep working.
 
-### Tunnels
+### Alternative: tunnels (`MODE = "tunnel"`)
+
+Runs the plain server as a separate process, with a restart watchdog, behind
+a tunnel.
 
 | | Cloudflare quick tunnel (default) | ngrok |
 | --- | --- | --- |
