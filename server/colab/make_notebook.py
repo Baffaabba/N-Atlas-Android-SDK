@@ -89,6 +89,10 @@ ASR_LANGUAGES = "ha,ig,yo,en"   #@param {type:"string"}
 LOAD_LLM = True           #@param {type:"boolean"}
 # "gradio": playground + API on one gradio.live link (default). "tunnel": plain server + cloudflared/ngrok.
 MODE = "gradio"           #@param ["gradio", "tunnel"]
+# Ask for a login (user "natlas", password = API key) before the browser playground opens.
+# Untick only for short team tests: anyone with the link can then use your GPU. The SDK API
+# always needs the API key either way.
+PLAYGROUND_LOGIN = True   #@param {type:"boolean"}
 GRADIO_PORT = 7860
 # "auto" = ngrok if NGROK_AUTHTOKEN is set, else Cloudflare quick tunnel
 TUNNEL = "auto"           #@param ["auto", "cloudflared", "ngrok"]
@@ -301,7 +305,7 @@ if MODE == "gradio":
         if SERVER_DIR not in sys.path:   # in case step 4 ran in an earlier session
             sys.path.insert(0, SERVER_DIR)
         from natlas_server.gradio_app import launch
-        URLS = launch(share=True, port=GRADIO_PORT)
+        URLS = launch(share=True, port=GRADIO_PORT, login=PLAYGROUND_LOGIN)
     BASE_URL = URLS["api"]
     server_proc = None
 else:
@@ -347,7 +351,7 @@ print(subprocess.run(["nvidia-smi", "--query-gpu=memory.used,memory.total", "--f
                      capture_output=True, text=True).stdout)
 if MODE == "gradio":
     print("=" * 70)
-    print("PLAYGROUND:", URLS["ui"], " (login: natlas / the API key)")
+    print("PLAYGROUND:", URLS["ui"], " (login: natlas / the API key)" if PLAYGROUND_LOGIN else " (no login)")
     print("SDK BASE URL:", BASE_URL)
     print("API KEY  :", API_KEY)
     print("=" * 70)

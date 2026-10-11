@@ -164,7 +164,8 @@ def build_ui(manager: Any) -> Any:
     return demo
 
 
-def launch(settings: Settings | None = None, share: bool = True, port: int = 7860) -> dict[str, str]:
+def launch(settings: Settings | None = None, share: bool = True, port: int = 7860,
+           login: bool = True) -> dict[str, str]:
     """Start the playground + API. Returns {"ui": ..., "api": ..., "local": ...}.
 
     Non-blocking: returns once the server is up (Colab keeps running it).
@@ -182,7 +183,10 @@ def launch(settings: Settings | None = None, share: bool = True, port: int = 786
     demo = build_ui(manager)
     demo.queue(default_concurrency_limit=4)
     keys = list(settings.api_keys)
-    auth = ("natlas", keys[0]) if keys else None
+    # The playground login protects the GPU and the 1,000-user licence cap on a
+    # public link. login=False opens the playground to anyone with the link;
+    # the SDK API under /natlas always needs the API key.
+    auth = ("natlas", keys[0]) if (login and keys) else None
     _, local_url, share_url = demo.launch(
         share=share,
         server_name="0.0.0.0",

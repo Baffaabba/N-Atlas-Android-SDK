@@ -114,7 +114,7 @@ models load once, in the notebook, and serve both of these:
 
 | Who | Uses | Login |
 | --- | --- | --- |
-| People testing in a browser | `https://<id>.gradio.live`: the **N-ATLAS playground** (Chat, Transcribe with mic or upload, Talk to N-ATLAS) | user `natlas`, password = the API key |
+| People testing in a browser | `https://<id>.gradio.live`: the **N-ATLAS playground** (Chat, Transcribe with mic or upload, Talk to N-ATLAS) | user `natlas`, password = the API key. Untick `PLAYGROUND_LOGIN` for short team tests (anyone with the link can then use your GPU) |
 | Android / Flutter SDK, curl | `https://<id>.gradio.live/natlas` as `baseUrl` (so `/natlas/health`, `/natlas/v1/chat/completions`, …) | `Authorization: Bearer <API key>` |
 
 Code: `natlas_server/gradio_app.py`. `launch()` starts Gradio with
