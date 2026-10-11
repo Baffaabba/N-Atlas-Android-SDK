@@ -173,8 +173,14 @@ r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-e", f"{SERVE
                    capture_output=True, text=True)
 print(r.stdout[-3000:], r.stderr[-3000:])
 assert r.returncode == 0, "pip install failed"
-import importlib; importlib.invalidate_caches()
-print("installed natlas-server from", SERVER_DIR)
+# An editable install is only picked up by *new* Python processes. Make this
+# running kernel see the package too (Gradio mode imports it in-process).
+import importlib
+if SERVER_DIR not in sys.path:
+    sys.path.insert(0, SERVER_DIR)
+importlib.invalidate_caches()
+import natlas_server
+print("installed natlas-server", natlas_server.__version__, "from", SERVER_DIR)
 """)
 
 md(r"""
@@ -292,6 +298,8 @@ if MODE == "gradio":
     try:
         URLS
     except NameError:
+        if SERVER_DIR not in sys.path:   # in case step 4 ran in an earlier session
+            sys.path.insert(0, SERVER_DIR)
         from natlas_server.gradio_app import launch
         URLS = launch(share=True, port=GRADIO_PORT)
     BASE_URL = URLS["api"]
