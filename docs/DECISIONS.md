@@ -28,6 +28,17 @@ to be proposed again.
 
 ## 2026-10-11
 
+- **ASR forces the language token by default (ha, yo, en).** Replaces the
+  backend's earlier "don't force" entry.
+  *Why:* Baffa reported bad Hausa transcription in the playground. The
+  Hausa-ASR `generation_config` has `forced_decoder_ids [[1, None], [2, 50359]]`,
+  which leaves the language open to auto-detection, and detection is fragile
+  on short or noisy microphone clips. On a clean 26.7 s clip, forcing gave
+  identical text and ran faster (backend test, 10 Oct). Not yet measured on a
+  test set.
+  *Applies to:* backend.
+
+
 - **The Colab notebook defaults to a Gradio share link (`MODE = "gradio"`):
   a browser playground plus the SDK API, mounted at `/natlas`, on one
   `*.gradio.live` URL. Cloudflared/ngrok stays available as `MODE = "tunnel"`.**

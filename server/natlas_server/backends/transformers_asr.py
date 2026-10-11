@@ -1,9 +1,11 @@
 """The NCAIR1 Whisper-small ASR fine-tunes through the transformers pipeline.
 
-By default this follows the model cards exactly: no forced language (the
-fine-tunes' generation_config leaves the language slot open). Set
-NATLAS_ASR_FORCE_LANGUAGE=1 to force Whisper's language token for ha, yo
-and en (Igbo has no Whisper token and is never forced).
+By default Whisper's language token is forced for ha, yo and en
+(NATLAS_ASR_FORCE_LANGUAGE=1). The fine-tunes' generation_config leaves the
+language slot open, so without forcing Whisper guesses the language from the
+audio, and on short or noisy microphone clips a wrong guess makes it decode
+in the wrong language. Set NATLAS_ASR_FORCE_LANGUAGE=0 to follow the model
+cards exactly. Igbo has no Whisper token and is never forced.
 """
 
 from __future__ import annotations

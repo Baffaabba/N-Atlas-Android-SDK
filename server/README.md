@@ -215,7 +215,7 @@ load fewer languages (`ASR_LANGUAGES` in the notebook) or set
 | `NATLAS_LLM_QUANTIZATION` | `4bit` | `4bit` (NF4), `8bit` or `none` |
 | `NATLAS_LLM_MAX_CONTEXT` | `8192` | Prompt plus `max_tokens` limit (the model card's advice) |
 | `NATLAS_LLM_MAX_TOKENS_CAP` | `2048` | Highest `max_tokens` accepted |
-| `NATLAS_ASR_FORCE_LANGUAGE` | `0` | `1` forces Whisper's language token for ha, yo and en. Off by default because the model cards call the pipeline without it |
+| `NATLAS_ASR_FORCE_LANGUAGE` | `1` | Forces Whisper's language token for ha, yo and en (Igbo has none). On by default: the NCAIR fine-tunes leave the language slot open, and on short mic clips Whisper's language guess can be wrong. `0` follows the model cards exactly |
 | `NATLAS_DEVICE` | `auto` | `auto`, `cuda` or `cpu` |
 | `NATLAS_HF_CACHE_DIR` | HF default | Where model files are stored |
 | `HF_TOKEN` | | Hugging Face token for the gated repos |

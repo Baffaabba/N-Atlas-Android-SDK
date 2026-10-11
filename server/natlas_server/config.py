@@ -36,7 +36,7 @@ class Settings:
     llm_quantization: str = "4bit"  # 4bit | 8bit | none
     llm_max_context: int = 8192
     llm_max_tokens_cap: int = 2048
-    asr_force_language: bool = False
+    asr_force_language: bool = True
     device: str = "auto"  # auto | cuda | cpu
     hf_cache_dir: str | None = None
 
@@ -65,7 +65,7 @@ class Settings:
             llm_quantization=(e.get("NATLAS_LLM_QUANTIZATION") or "4bit").strip().lower(),
             llm_max_context=int(e.get("NATLAS_LLM_MAX_CONTEXT") or 8192),
             llm_max_tokens_cap=int(e.get("NATLAS_LLM_MAX_TOKENS_CAP") or 2048),
-            asr_force_language=_bool(e.get("NATLAS_ASR_FORCE_LANGUAGE"), False),
+            asr_force_language=_bool(e.get("NATLAS_ASR_FORCE_LANGUAGE"), True),
             device=(e.get("NATLAS_DEVICE") or "auto").strip().lower(),
             hf_cache_dir=e.get("NATLAS_HF_CACHE_DIR") or None,
             fake_token_delay_ms=int(e.get("NATLAS_FAKE_TOKEN_DELAY_MS") or 30),
