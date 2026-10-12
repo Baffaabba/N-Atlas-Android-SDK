@@ -102,8 +102,8 @@ numbers from those manual checks, so we give none.
 
 ## Team device testing (12 Oct)
 
-Baffa installed the Android sample app on five Android devices and ran it
-against the live server: file transcription, live mic, streaming chat and
+The team installed both the Kotlin sample app and the Flutter example app
+on five Android devices and ran them against the Colab notebook server: file transcription, live mic, streaming chat and
 the voice pipeline. Everything worked on all five, with no crashes. Device
 models and Android versions were not recorded.
 
