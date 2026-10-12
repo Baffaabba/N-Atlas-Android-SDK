@@ -66,7 +66,7 @@ Not issued. We use the open NCAIR1 weights on Hugging Face (gated access accepte
 <!-- field:tested:1500 -->
 1. Live server with real models: on 12 Oct 2026 we loaded all five NCAIR1 models on a Google Colab Tesla T4 (cold start 952 s; 7.6 GB of 15 GB GPU memory) and called it over the internet from a laptop in Nigeria, through the same endpoints the Kotlin and Flutter SDK use.
 2. Real speech data with human transcripts: a benchmark script (tools/benchmark in the repo) downloads public labelled speech, Google FLEURS (Hausa, Igbo, Yoruba) and AfriSpeech-200 (Nigerian-accented English), sends each clip to the server, and scores word error rate and request time. Anyone can rerun it against any server.
-3. Hands-on use by the team in the Gradio playground. This found that Hausa transcription of short mic clips was poor until we forced Whisper's language token, which we then made the default.
+3. Real phones: our team installed the Android sample app on five Android devices and used every feature (file transcription, live mic, streaming chat, voice pipeline) against the live server, with no crashes or failures. We also used the Gradio playground. This found that Hausa transcription of short mic clips was poor until we forced Whisper's language token, which we then made the default.
 4. Automated tests: 70 server tests (FastAPI, auth, user cap, SSE, WebSocket live sessions, audio splitting), 69 Kotlin unit tests for natlas-core, and 56 Flutter tests, all passing.
 We wrote a guide for external developer testers (docs/validation/TESTER-GUIDE.md). No external feedback was in by the deadline, and the repo says so.
 <!-- /field -->
@@ -78,6 +78,7 @@ We wrote a guide for external developer testers (docs/validation/TESTER-GUIDE.md
 - All five NCAIR1 models served from one endpoint on a single free T4 GPU, using 7.6 GB of 15 GB.
 - Hausa speech-to-text on real FLEURS speech: 7 of 7 requests succeeded. Median request time 9.45 s for a median clip of 19.3 s, network from Nigeria included, so a clip transcribes in about half its own length. Median word error rate 0.35; most errors were foreign names (Aristarchus, NHK), and the model writes hooked letters such as ƙ that the references leave out.
 - One real bug found: the one clip over 30 s, split into two windows, made the model repeat text. Fix planned: a shorter split and a repetition guard.
+- The Android sample app worked on all five team test devices with no crashes: file and live-mic transcription, streaming chat and the voice pipeline.
 - Forcing the Whisper language token fixed poor Hausa results on short mic clips found in hands-on testing; it is now the default.
 - The Colab session ended partway through the benchmark, so Igbo, Yoruba, English, chat and live-mic timings were not measured in that run. We report what we measured and nothing else; the script reruns the whole set.
 - Lesson: free Colab is fine for development but not for hosting. A stable hosted endpoint is our first post-challenge task.
