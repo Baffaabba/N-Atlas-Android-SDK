@@ -1,3 +1,5 @@
+<p align="center"><img src="https://raw.githubusercontent.com/Baffaabba/N-Atlas-Android-SDK/feat/project-setup/docs/assets/logo.png" alt="N-ATLAS Android SDK logo" width="220"></p>
+
 # natlas_sdk
 
 Flutter plugin for the N-ATLAS models. Speech-to-text in Hausa, Igbo, Yoruba

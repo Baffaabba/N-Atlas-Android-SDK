@@ -74,7 +74,7 @@ th, td { border: 1px solid #c9d1cc; padding: 4px 6px; vertical-align: top; text-
 th { background: #e9f1ec; }
 blockquote { border-left: 3px solid #0b6b3a; margin-left: 0; padding-left: 10px; color: #333; }
 .part { page-break-before: always; }
-.cover { height: 250mm; display: flex; flex-direction: column; justify-content: center; }
+.cover { height: 250mm; align-items: flex-start; display: flex; flex-direction: column; justify-content: center; }
 .cover h1 { font-size: 30pt; border: none; }
 .cover .sub { font-size: 15pt; color: #0b6b3a; margin-bottom: 30px; }
 .cover .meta { font-size: 11pt; line-height: 1.8; }
@@ -84,6 +84,7 @@ blockquote { border-left: 3px solid #0b6b3a; margin-left: 0; padding-left: 10px;
 
 def render(md_text: str) -> str:
     md_text = re.sub(r"```mermaid.*?```", "", md_text, flags=re.S)  # PDFs can't run mermaid; ASCII diagram stays
+    md_text = md_text.replace('src="docs/', f'src="{ROOT.as_uri()}/docs/')
     return markdown.markdown(md_text, extensions=["tables", "fenced_code", "sane_lists"])
 
 
@@ -98,7 +99,8 @@ def find_browser() -> str:
 
 
 def build(name: str, book: dict, browser: str) -> Path:
-    body = [f"""<div class="cover"><h1>{html.escape(book['title'])}</h1>
+    logo = (ROOT / "docs/assets/logo.png").as_uri()
+    body = [f"""<div class="cover"><img src="{logo}" style="width:70mm;margin-bottom:8mm"><h1>{html.escape(book['title'])}</h1>
 <div class="sub">{html.escape(book['subtitle'])}</div>
 <div class="meta">NAIC 2026 &middot; Problem Statement 01: Developer Infrastructure<br>
 Innovation &amp; Enterprise track<br>Repository: {REPO}<br>Version 0.1.0 &middot; 12 October 2026<br><br>

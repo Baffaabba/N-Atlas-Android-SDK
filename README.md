@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/assets/logo.png" alt="N-ATLAS Android SDK logo" width="280"></p>
+
 # N-ATLAS SDK for Android
 
 **Add Hausa, Igbo, Yoruba and Nigerian English voice and chat to an Android
