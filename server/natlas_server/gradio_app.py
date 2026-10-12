@@ -6,7 +6,7 @@ no ngrok or cloudflared account needed), then mounts the full FastAPI app from
 ``create_app()`` at ``/natlas`` on the same server. So:
 
 - people open ``https://<id>.gradio.live`` and try chat, transcription and a
-  voice turn in the browser (login: user ``natlas``, password = the API key);
+  voice turn in the browser (no login unless the notebook asks for one: user ``natlas``, password = the API key);
 - the Android/Flutter SDK uses ``https://<id>.gradio.live/natlas`` as
   ``baseUrl``, with the same API key as a Bearer token.
 

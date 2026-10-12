@@ -27,9 +27,10 @@ gives it a public HTTPS link.
 **Default (`MODE = "gradio"`)** – one Gradio share link (`https://<id>.gradio.live`):
 
 - open the link in a browser for the **N-ATLAS playground** (chat, transcribe,
-  talk to N-ATLAS). Login: user `natlas`, password = the API key printed below;
-- the Android/Flutter SDK uses **`<link>/natlas`** as `baseUrl`, with the same
-  API key.
+  talk to N-ATLAS). No login by default (tick `PLAYGROUND_LOGIN` to add one);
+- in the Kotlin sample or Flutter example app, open **Settings** and paste the
+  **Server address** (`<link>/natlas`) and the **API key**, both printed at the
+  end of step 8. In code they are `baseUrl` and `apiKey` in `NAtlasConfig`.
 
 No ngrok or Cloudflare account needed. `MODE = "tunnel"` runs the plain
 server behind cloudflared/ngrok instead (use it for a fixed ngrok domain).
@@ -89,10 +90,10 @@ ASR_LANGUAGES = "ha,ig,yo,en"   #@param {type:"string"}
 LOAD_LLM = True           #@param {type:"boolean"}
 # "gradio": playground + API on one gradio.live link (default). "tunnel": plain server + cloudflared/ngrok.
 MODE = "gradio"           #@param ["gradio", "tunnel"]
-# Ask for a login (user "natlas", password = API key) before the browser playground opens.
-# Untick only for short team tests: anyone with the link can then use your GPU. The SDK API
-# always needs the API key either way.
-PLAYGROUND_LOGIN = True   #@param {type:"boolean"}
+# Off by default: the browser playground opens with no login. Only people you give the link to
+# can reach it. Tick to ask for a login (user "natlas", password = the API key).
+# The SDK API (Server address below) always needs the API key either way.
+PLAYGROUND_LOGIN = False  #@param {type:"boolean"}
 GRADIO_PORT = 7860
 # "auto" = ngrok if NGROK_AUTHTOKEN is set, else Cloudflare quick tunnel
 TUNNEL = "auto"           #@param ["auto", "cloudflared", "ngrok"]
@@ -351,12 +352,15 @@ print(subprocess.run(["nvidia-smi", "--query-gpu=memory.used,memory.total", "--f
                      capture_output=True, text=True).stdout)
 if MODE == "gradio":
     print("=" * 70)
-    print("PLAYGROUND:", URLS["ui"], " (login: natlas / the API key)" if PLAYGROUND_LOGIN else " (no login)")
-    print("SDK BASE URL:", BASE_URL)
-    print("API KEY  :", API_KEY)
+    print("Paste these two into the app's Settings screen (Kotlin sample or Flutter example):")
+    print("  Server address :", BASE_URL)
+    print("  API key        :", API_KEY)
     print("=" * 70)
-    print("Android : NAtlasConfig(baseUrl = \"%s\", apiKey = ...)" % BASE_URL)
-    print("Flutter : --dart-define=NATLAS_BASE_URL=%s --dart-define=NATLAS_API_KEY=..." % BASE_URL)
+    print("Browser playground :", URLS["ui"], "(login: natlas / the API key)" if PLAYGROUND_LOGIN else "(no login)")
+    print("API docs (Swagger) :", BASE_URL + "/docs")
+    print("Health check       :", BASE_URL + "/health")
+    print("In code  - Android : NAtlasConfig(baseUrl = \"%s\", apiKey = \"<API key>\")" % BASE_URL)
+    print("         - Flutter : --dart-define=NATLAS_BASE_URL=%s --dart-define=NATLAS_API_KEY=<API key>" % BASE_URL)
 """)
 
 md(r"""
@@ -405,7 +409,7 @@ def start_ngrok():
     return tunnel, tunnel.public_url.replace("http://", "https://")
 
 if MODE == "gradio":
-    print("Gradio mode: nothing to do here. SDK base URL:", BASE_URL)
+    print("Gradio mode: nothing to do here. Server address:", BASE_URL)
 else:
     if TUNNEL_KIND == "ngrok":
         tunnel_handle, BASE_URL = start_ngrok()
@@ -413,12 +417,14 @@ else:
         tunnel_handle, BASE_URL = start_cloudflared()
 
     print("=" * 70)
-    print("BASE URL :", BASE_URL)
-    print("API KEY  :", API_KEY)
+    print("Paste these two into the app's Settings screen (Kotlin sample or Flutter example):")
+    print("  Server address :", BASE_URL)
+    print("  API key        :", API_KEY)
     print("=" * 70)
-    print("Android : NAtlasConfig(baseUrl = \"%s\", apiKey = ...)" % BASE_URL)
-    print("Flutter : --dart-define=NATLAS_BASE_URL=%s --dart-define=NATLAS_API_KEY=..." % BASE_URL)
-    print("Health  :", BASE_URL + "/health")
+    print("API docs (Swagger) :", BASE_URL + "/docs")
+    print("Health check       :", BASE_URL + "/health")
+    print("In code  - Android : NAtlasConfig(baseUrl = \"%s\", apiKey = \"<API key>\")" % BASE_URL)
+    print("         - Flutter : --dart-define=NATLAS_BASE_URL=%s --dart-define=NATLAS_API_KEY=<API key>" % BASE_URL)
 """)
 
 md("## 9. Smoke test")
@@ -541,7 +547,7 @@ no audio or text is logged). Keep this tab open; Colab ends idle sessions.
 code(r"""
 import json, subprocess
 h = health()
-print("BASE URL:", BASE_URL, "| mode:", MODE, "| tunnel:", TUNNEL_KIND if MODE == "tunnel" else "gradio share",
+print("Server address:", BASE_URL, "| mode:", MODE, "| tunnel:", TUNNEL_KIND if MODE == "tunnel" else "gradio share",
       "| server restarts:", restarts)
 print(json.dumps(h, indent=1) if h else "server not answering")
 if MODE == "tunnel":
