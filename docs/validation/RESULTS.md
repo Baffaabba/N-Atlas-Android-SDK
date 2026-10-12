@@ -100,6 +100,13 @@ numbers from those manual checks, so we give none.
 | Kotlin `natlas-core` unit tests | 69 per variant, 0 failures, 2 skipped (the live-server integration tests; no server was up) | `cd android && ./gradlew :natlas-core:test` |
 | Flutter plugin and example | Plugin 50 passed, example 6 passed; `flutter analyze` clean | `cd flutter/natlas_sdk && flutter test` |
 
+## Team device testing (12 Oct)
+
+Baffa installed the Android sample app on five Android devices and ran it
+against the live server: file transcription, live mic, streaming chat and
+the voice pipeline. Everything worked on all five, with no crashes. Device
+models and Android versions were not recorded.
+
 ## External testers
 
 The problem statement asks for at least two external developer testers. The

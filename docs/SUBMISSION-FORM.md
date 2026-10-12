@@ -129,7 +129,10 @@ The README walks through these steps with copy-paste code. docs/API.md documents
 
 **PS1: What was the outcome of the beta test? (max 200 words)**
 <!-- field:beta:1500 -->
-External beta testing had not finished by the deadline. We prepared a tester guide (docs/validation/TESTER-GUIDE.md) and will add external developers' feedback to the repo during the integration check. Our own testing so far: all five NCAIR1 models were served from one Colab T4 GPU and called over the internet from Nigeria; 7 of 7 Hausa transcriptions of real FLEURS speech succeeded (median request 9.45 s, median word error rate 0.35); 69 Kotlin and 56 Flutter automated tests pass. Hands-on use found two problems, both reported in the repo: poor Hausa results on short mic clips (fixed by forcing the Whisper language token) and repeated text on audio over 30 seconds (fix planned). Evidence: docs/validation/RESULTS.md and the validation PDF.
+The SDK works as expected on real phones. Our team installed the Android sample app on five different Android devices and ran it against the live N-ATLAS server: file transcription, live microphone transcription, streaming chat with N-ATLaS and the one-call voice pipeline. All features worked on all five devices with no crashes or failures.
+Server side, all five NCAIR1 models ran on one Colab T4 GPU and were called over the internet from Nigeria. Hausa transcription of real FLEURS speech succeeded 7 of 7 times (median request 9.45 s, median word error rate 0.35). 69 Kotlin and 56 Flutter automated tests pass.
+Testing also found two issues, both documented: poor Hausa results on short mic clips, fixed by forcing the Whisper language token, and repeated text on audio over 30 seconds (fix planned).
+Feedback from external developers, using our tester guide, will be added to the repository during the integration check. Evidence: docs/validation/RESULTS.md and the validation PDF.
 <!-- /field -->
 
 **PS1: Link to GitHub repository:** https://github.com/Baffaabba/N-Atlas-Android-SDK (Apache-2.0 `LICENSE` and `CONTRIBUTING.md` in the root)
