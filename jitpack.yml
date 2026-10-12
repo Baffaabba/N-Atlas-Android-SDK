@@ -1,0 +1,6 @@
+# JitPack build for natlas-core. The Gradle project lives in android/.
+# Coordinate: com.github.Baffaabba.N-Atlas-Android-SDK:natlas-core:<tag>  (e.g. v0.1.0)
+jdk:
+  - openjdk17
+install:
+  - cd android && chmod +x gradlew && ./gradlew :natlas-core:publishToMavenLocal -x test --no-daemon

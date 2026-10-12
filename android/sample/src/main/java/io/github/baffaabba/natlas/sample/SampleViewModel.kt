@@ -43,7 +43,9 @@ class SampleViewModel(app: Application) : AndroidViewModel(app) {
     // ---- Settings ----
     var baseUrl by mutableStateOf(prefs.getString(KEY_BASE_URL, null) ?: BuildConfig.NATLAS_BASE_URL)
         private set
-    var apiKey by mutableStateOf(BuildConfig.NATLAS_API_KEY)
+    // Saved on the device only (SharedPreferences), so a key typed in Settings survives a restart.
+    // Release builds ship with an empty BuildConfig key; the user types their own.
+    var apiKey by mutableStateOf(prefs.getString(KEY_API_KEY, null) ?: BuildConfig.NATLAS_API_KEY)
         private set
     var language by mutableStateOf(Language.HAUSA)
 
@@ -56,6 +58,7 @@ class SampleViewModel(app: Application) : AndroidViewModel(app) {
 
     fun updateApiKey(value: String) {
         apiKey = value.trim()
+        prefs.edit().putString(KEY_API_KEY, apiKey).apply()
     }
 
     val isConfigured: Boolean get() = baseUrl.isNotBlank() && apiKey.isNotBlank()
@@ -266,6 +269,12 @@ class SampleViewModel(app: Application) : AndroidViewModel(app) {
         turn?.stop()
     }
 
+    /** Called when the app goes to the background: stop using the microphone. */
+    fun stopMicSessions() {
+        if (liveRunning) stopLive()
+        if (voicePhase == VoicePhase.LISTENING) stopVoice()
+    }
+
     /** Plain-English messages for app users. No jargon, always a next step. */
     private fun friendlyError(e: Throwable): String = when (e) {
         is NAtlasException.Unauthorized -> "The server didn't accept the API key. Check the key in Settings."
@@ -289,5 +298,6 @@ class SampleViewModel(app: Application) : AndroidViewModel(app) {
 
     private companion object {
         const val KEY_BASE_URL = "base_url"
+        const val KEY_API_KEY = "api_key"
     }
 }

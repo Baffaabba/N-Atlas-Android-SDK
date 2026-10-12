@@ -79,7 +79,7 @@ why), `docs/STATUS.md` (gates and cuts).
 >
 > Free use up to 1,000 active users in a rolling 30 days. Commercial licence: datasupport@awarri.com
 >
-> github.com/<repo> (fill in)
+> github.com/Baffaabba/N-Atlas-Android-SDK
 
 **Hausa lines for the cold open and the one take.** A fluent speaker writes
 or checks them before filming:

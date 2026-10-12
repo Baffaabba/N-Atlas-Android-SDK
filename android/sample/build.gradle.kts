@@ -44,6 +44,10 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            // Release APKs never carry a key: the user types theirs in Settings.
+            buildConfigField("String", "NATLAS_API_KEY", "\"\"")
+            // Signed with the debug key so the APK installs without a keystore. Not for a store.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

@@ -82,7 +82,7 @@ activities, so treat this as a short-lived test server, not hosting.
 md("## 1. Settings")
 code(r"""
 # Where to get the server code. Change REPO_URL if the repo lives elsewhere.
-REPO_URL = "https://github.com/Baffaabba/N-Atlas-SDK.git"   #@param {type:"string"}
+REPO_URL = "https://github.com/Baffaabba/N-Atlas-Android-SDK.git"   #@param {type:"string"}
 REPO_BRANCH = ""          #@param {type:"string"}
 # Which ASR languages to load: any of ha, ig, yo, en
 ASR_LANGUAGES = "ha,ig,yo,en"   #@param {type:"string"}

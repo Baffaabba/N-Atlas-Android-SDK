@@ -1,0 +1,1 @@
+- [Toolchain findings](project_toolchain.md) — doctor results, adb crash, 13-min first analyze, Flutter 3.47 AGP/Kotlin ranges

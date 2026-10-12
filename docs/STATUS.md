@@ -1,6 +1,10 @@
 # Status: N-ATLAS SDK for NAIC 2026
 
 Last updated: **Sat 10 Oct 2026** by natlas-pm.
+
+> **Note, Mon 12 Oct:** this page is the plan from 10 Oct and is out of date.
+> What was built and measured is in `docs/validation/RESULTS.md` and
+> `docs/N-ATLAS-INTEGRATION.md`. Portal answers: `docs/SUBMISSION-FORM.md`.
 Deadline: **Mon 12 Oct 2026, 11:59 PM WAT.** Late entries are not accepted.
 We submit by **9:00 PM WAT Monday**, which leaves three hours spare.
 

@@ -54,3 +54,6 @@ Thumbs.db
 
 # Gradio local state
 .gradio/
+
+# Submission build outputs (PDFs, APKs)
+dist/

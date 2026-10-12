@@ -48,6 +48,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.baffaabba.natlas.Language
 import io.github.baffaabba.natlas.NAtlasClient
@@ -79,6 +81,9 @@ fun SampleScreen(vm: SampleViewModel) {
     var pendingMicAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var showRationale by remember { mutableStateOf(false) }
     var micDenied by rememberSaveable { mutableStateOf(false) }
+
+    // Leaving the app stops any live or voice session so the microphone is released.
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) { vm.stopMicSessions() }
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) {

@@ -8,7 +8,8 @@ Baffa fills this in. Agents do not invent team details.
 | Name | Affiliation | Role on this project | Relevant experience (one line) |
 | --- | --- | --- | --- |
 | Baffa (full name: TODO) | TODO | Lead: product, Android | TODO |
-| TODO | TODO | TODO | TODO |
+| Contributor 1 (name: TODO) | TODO | Contributor | TODO |
+| Contributor 2 (name: TODO) | TODO | Contributor | TODO |
 
 Company: TODO (CAC registration number: TODO)
 

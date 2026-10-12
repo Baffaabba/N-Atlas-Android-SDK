@@ -8,8 +8,11 @@ plugins {
     `maven-publish`
 }
 
-group = providers.gradleProperty("natlasGroup").get()
-version = providers.gradleProperty("natlasVersion").get()
+// On JitPack (JITPACK=true) publish under the coordinates JitPack serves:
+// com.github.Baffaabba.N-Atlas-Android-SDK:natlas-core:<tag>. Everywhere else use gradle.properties.
+val onJitPack = System.getenv("JITPACK") == "true"
+group = if (onJitPack) "${System.getenv("GROUP")}.${System.getenv("ARTIFACT")}" else providers.gradleProperty("natlasGroup").get()
+version = if (onJitPack) System.getenv("VERSION") else providers.gradleProperty("natlasVersion").get()
 
 android {
     namespace = "io.github.baffaabba.natlas"
@@ -18,7 +21,7 @@ android {
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("String", "SDK_VERSION", "\"${project.version}\"")
+        buildConfigField("String", "SDK_VERSION", "\"${providers.gradleProperty("natlasVersion").get()}\"")
     }
 
     buildFeatures {
@@ -81,7 +84,7 @@ publishing {
                         "N-ATLAS is an initiative of the Federal Ministry of Communications, " +
                         "Innovation and Digital Economy, and powered by Awarri Technologies."
                 )
-                url.set("https://github.com/Baffaabba/N-Atlas-SDK")
+                url.set("https://github.com/Baffaabba/N-Atlas-Android-SDK")
                 licenses {
                     license {
                         name.set("Apache-2.0")
