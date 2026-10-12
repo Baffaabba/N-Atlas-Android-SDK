@@ -110,3 +110,26 @@ Yes. We need GPU compute to host N-ATLaS and the four ASR models full time (toda
 **How did you hear about the NAIC?** Pick what is true for you.
 
 **Confirmations:** Tick Yes on all four (original work, accurate information, terms and conditions, publicity), after reading them.
+
+## PS1-only questions
+
+**Which toolkit component(s)?** Tick: SDK, Interactive playground (the Gradio playground in the Colab notebook), More than one.
+
+**PS1: Describe toolkit use (max 1500)**
+<!-- field:toolkit:1500 -->
+1. Get access: accept the terms on the five NCAIR1 repos on Hugging Face and create a token.
+2. Start a server: open server/colab/natlas_server_colab.ipynb in Google Colab (free T4 GPU), add the token as a secret and press Run all. About 15 minutes later it prints a public URL, an API key and a browser playground where you can talk to N-ATLaS and test all four speech models before writing any code.
+3. Add the SDK. Kotlin: add the JitPack repository and one dependency line. Flutter: add natlas_sdk as a git dependency.
+4. Write a few lines: create NAtlasClient with the server URL and key, then call client.asr.transcribe(file, Language.HAUSA), client.chat.stream(messages) or client.voice.converse(Language.YORUBA) for speak-and-get-an-answer. Live microphone, retries, errors and cancellation are handled for you.
+5. Run the Kotlin or Flutter sample app to see every call working on a phone, and copy from it.
+The README walks through these steps with copy-paste code. docs/API.md documents the OpenAI-compatible protocol, so the same server also works from curl, Python or JavaScript, and a developer can point the SDK at any compatible N-ATLAS server, including an official one later.
+<!-- /field -->
+
+**PS1: How many external developers beta-tested the toolkit?** 0 (be honest; only write a higher number if people outside your team really tested it and you have their feedback)
+
+**PS1: What was the outcome of the beta test? (max 200 words)**
+<!-- field:beta:1500 -->
+External beta testing had not finished by the deadline. We prepared a tester guide (docs/validation/TESTER-GUIDE.md) and will add external developers' feedback to the repo during the integration check. Our own testing so far: all five NCAIR1 models were served from one Colab T4 GPU and called over the internet from Nigeria; 7 of 7 Hausa transcriptions of real FLEURS speech succeeded (median request 9.45 s, median word error rate 0.35); 69 Kotlin and 56 Flutter automated tests pass. Hands-on use found two problems, both reported in the repo: poor Hausa results on short mic clips (fixed by forcing the Whisper language token) and repeated text on audio over 30 seconds (fix planned). Evidence: docs/validation/RESULTS.md and the validation PDF.
+<!-- /field -->
+
+**PS1: Link to GitHub repository:** https://github.com/Baffaabba/N-Atlas-Android-SDK (Apache-2.0 `LICENSE` and `CONTRIBUTING.md` in the root)
