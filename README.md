@@ -100,7 +100,7 @@ dependencyResolutionManagement {
 
 // app/build.gradle.kts
 dependencies {
-    implementation("com.github.Baffaabba.N-Atlas-Android-SDK:natlas-core:v0.1.0")
+    implementation("com.github.Baffaabba:N-Atlas-Android-SDK:v0.1.0")
 }
 ```
 
