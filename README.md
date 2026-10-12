@@ -85,16 +85,36 @@ committed. In a real app, get a short-lived key from your own backend.
 
 ### Kotlin
 
+`natlas-core` is not on Maven Central. Get it from JitPack, which builds it
+from the `v0.1.0` tag of this repo:
+
 ```kotlin
-// build.gradle.kts
+// settings.gradle.kts
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
+}
+
+// app/build.gradle.kts
 dependencies {
-    implementation("io.github.baffaabba:natlas-core:0.1.0") // not yet published; see note
+    implementation("com.github.Baffaabba.N-Atlas-Android-SDK:natlas-core:v0.1.0")
 }
 ```
 
-> **Not on Maven Central yet.** Until the first release, include
-> `android/natlas-core` from this repo as a module. TODO (android): exact
-> steps once the Gradle project exists.
+The first request after a new tag can take a few minutes while JitPack builds
+it. If JitPack is down, build it yourself (needs JDK 17 and the Android SDK):
+
+```bash
+git clone https://github.com/Baffaabba/N-Atlas-Android-SDK.git
+cd N-Atlas-Android-SDK/android
+./gradlew :natlas-core:publishToMavenLocal
+```
+
+Then add `mavenLocal()` to the repositories above and use
+`implementation("io.github.baffaabba:natlas-core:0.1.0")`.
 
 ```kotlin
 val client = NAtlasClient(
@@ -129,9 +149,14 @@ turn.events.collect { e ->
 dependencies:
   natlas_sdk:
     git:
-      url: <repo-url>          # TODO: fill in once the repo is public
+      url: https://github.com/Baffaabba/N-Atlas-Android-SDK.git
+      ref: v0.1.0
       path: flutter/natlas_sdk
 ```
+
+The plugin's Android side needs `natlas-core`, which is not on Maven Central.
+Clone this repo and run `./gradlew :natlas-core:publishToMavenLocal` in
+`android/` (or use the composite build in `flutter/natlas_sdk/README.md`).
 
 ```dart
 final client = NAtlasClient(NAtlasConfig(

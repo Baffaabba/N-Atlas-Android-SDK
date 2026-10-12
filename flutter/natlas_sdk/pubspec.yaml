@@ -1,0 +1,31 @@
+name: natlas_sdk
+description: >-
+  Flutter plugin for the N-ATLAS models: speech-to-text in Hausa, Igbo, Yoruba
+  and Nigerian English, chat with N-ATLaS, and a voice pipeline. Android only.
+version: 0.1.0
+homepage: https://github.com/Baffaabba/N-Atlas-Android-SDK
+repository: https://github.com/Baffaabba/N-Atlas-Android-SDK/tree/main/flutter/natlas_sdk
+# Not on pub.dev until natlas-core is on Maven Central (see README, "Install").
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+  flutter: '>=3.35.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  pigeon: ^29.0.8
+
+flutter:
+  plugin:
+    # Android only in v1. There is deliberately no iOS, web or desktop entry.
+    platforms:
+      android:
+        package: io.github.baffaabba.natlas_sdk
+        pluginClass: NatlasSdkPlugin

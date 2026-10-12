@@ -67,7 +67,7 @@ Not issued. We use the open NCAIR1 weights on Hugging Face (gated access accepte
 1. Live server with real models: on 12 Oct 2026 we loaded all five NCAIR1 models on a Google Colab Tesla T4 (cold start 952 s; 7.6 GB of 15 GB GPU memory) and called it over the internet from a laptop in Nigeria, through the same endpoints the Kotlin and Flutter SDK use.
 2. Real speech data with human transcripts: a benchmark script (tools/benchmark in the repo) downloads public labelled speech, Google FLEURS (Hausa, Igbo, Yoruba) and AfriSpeech-200 (Nigerian-accented English), sends each clip to the server, and scores word error rate and request time. Anyone can rerun it against any server.
 3. Hands-on use by the team in the Gradio playground. This found that Hausa transcription of short mic clips was poor until we forced Whisper's language token, which we then made the default.
-4. Automated tests: 70 server tests (FastAPI, auth, user cap, SSE, WebSocket live sessions, audio splitting), Kotlin unit tests for natlas-core, and Flutter plugin tests.
+4. Automated tests: 70 server tests (FastAPI, auth, user cap, SSE, WebSocket live sessions, audio splitting), 69 Kotlin unit tests for natlas-core, and 56 Flutter tests, all passing.
 We wrote a guide for external developer testers (docs/validation/TESTER-GUIDE.md). No external feedback was in by the deadline, and the repo says so.
 <!-- /field -->
 

@@ -1,0 +1,3 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- INTERNET and RECORD_AUDIO come from natlas-core. -->
+</manifest>

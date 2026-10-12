@@ -97,8 +97,8 @@ numbers from those manual checks, so we give none.
 | Suite | Result | Command |
 | --- | --- | --- |
 | Server (FastAPI, fake and real code paths) | 68 passed (+2 Gradio-mount tests, which pass on their own: 4 passed) | `cd server && .venv/Scripts/python -m pytest -q` |
-| Kotlin `natlas-core` unit tests | See `measurements/2026-10-12-kotlin-unit-tests.md` | `cd android && ./gradlew :natlas-core:test` |
-| Flutter plugin | See `measurements/2026-10-12-flutter-tests.md` | `cd flutter/natlas_sdk && flutter test` |
+| Kotlin `natlas-core` unit tests | 69 per variant, 0 failures, 2 skipped (the live-server integration tests; no server was up) | `cd android && ./gradlew :natlas-core:test` |
+| Flutter plugin and example | Plugin 50 passed, example 6 passed; `flutter analyze` clean | `cd flutter/natlas_sdk && flutter test` |
 
 ## External testers
 

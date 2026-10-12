@@ -1,0 +1,35 @@
+name: natlas_sdk_example
+description: "Example app for the natlas_sdk plugin: transcribe, live mic, chat and voice with N-ATLAS."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  natlas_sdk:
+    path: ../
+  file_picker: ^13.1.0
+  permission_handler: ^13.0.2
+  shared_preferences: ^2.5.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Noto Sans covers ɓ ɗ ƙ (Hausa), ẹ ọ ṣ and tone marks (Yoruba), ị ụ ṅ (Igbo).
+  # Bundled, not downloaded, so it works offline. SIL OFL 1.1: assets/fonts/OFL.txt.
+  fonts:
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-Regular.ttf
+        - asset: assets/fonts/NotoSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSans-Bold.ttf
+          weight: 700
